@@ -21,7 +21,6 @@ router.post("/", async (req, res) => {
     const result = await pool.request().query(`
       SELECT title, description, type, source, created_at
       FROM ERPEvents
-      ORDER BY created_at DESC
     `);
 
     getIO().emit("all-events", result.recordset);

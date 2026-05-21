@@ -258,7 +258,6 @@
 
       socket.on("connect", () => {
         console.log("Socket connected:", socket.id);
-        // no loadExistingEvents() needed — server pushes data automatically on connect
       });
 
       socket.on("all-events", (data) => {

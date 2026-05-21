@@ -14,52 +14,21 @@ router.post("/", async (req, res) => {
       .input("description", description)
       .input("type", type)
       .input("source", source).query(`
-        INSERT INTO ERPEvents
-        (title, description, type, source)
-        VALUES
-        (@title, @description, @type, @source)
+        INSERT INTO ERPEvents (title, description, type, source)
+        VALUES (@title, @description, @type, @source)
       `);
 
-    //Emit realtime event
-    getIO().emit("new-event", {
-      title,
-      description,
-      type,
-      source,
-      created_at: new Date(),
-    });
-
-    res.json({
-      success: true,
-      message: "Event created successfully",
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-router.get("/", async (reqest, response) => {
-  try {
-    const result = await pool.request().query(
-      `SELECT title, description, type, source, created_at
+    const result = await pool.request().query(`
+      SELECT title, description, type, source, created_at
       FROM ERPEvents
-      ORDER BY created_at DESC`,
-    );
-    response.json({
-      success: true,
-      data: result.recordset,
-    });
+    `);
+
+    getIO().emit("all-events", result.recordset);
+
+    res.json({ success: true });
   } catch (error) {
     console.error(error);
-    reqest.status(500).json({
-      success: false,
-      error: error.message,
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
